@@ -13,11 +13,13 @@ jobs:
 
       - name: Get pull request commits
         id: commits
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN }}
         run: |
-          PR_COMMITS=$(gh pr view ${{ github.event.pull_request.number }} --json commits --jq '.commits[].message')
-          echo "$PR_COMMITS" > commits.txt
-          env:
-            GH_TOKEN: ${{ secrets.TOKEN }}
+          PR_COMMITS=$(gh pr view ${{ github.event.pull_request.number }} --json commits --jq '.commits[].message' | tr '\n' ' ')
+          echo "PR_COMMITS<<EOF" >> $GITHUB_ENV
+          echo "$PR_COMMITS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Check conventional commits
         id: check_commits
@@ -25,11 +27,12 @@ jobs:
           echo "Checking commit messages..."
           regex="^(feat|fix|docs|style|refactor|perf|test|chore|ci|build)(\(.+\))?: .+"
           invalid_commits=""
-          while read -r commit; do
+          
+          while IFS= read -r commit; do
             if [[ ! "$commit" =~ $regex ]]; then
               invalid_commits+="$commit\n"
             fi
-          done < commits.txt
+          done <<< "$(echo -e "${{ env.PR_COMMITS }}")"
           
           if [[ -n "$invalid_commits" ]]; then
             echo "Invalid commit messages found!"
@@ -49,7 +52,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: "***Invalid commit messages detected!***\n\nYour PR contains commits that do not follow the conventional commits format. Please update your commits.\n\nInvalid commits:\n```\n${{ env.INVALID_COMMITS }}\n```"
+              body: "***Invalid commit messages detected!***\n\nYour PR contains commits that do not follow the Conventional Commits format. Please update your commits.\n\nInvalid commits:\n```\n${{ env.INVALID_COMMITS }}\n```"
             });
 
       - name: Close pull request if invalid commits
