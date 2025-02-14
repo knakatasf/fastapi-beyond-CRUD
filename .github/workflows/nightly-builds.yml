@@ -2,7 +2,7 @@ name: Nightly builds
 
 on:
   schedule:
-    cron: "25 23 * * *"
+    - cron: "30 23 * * *"
 
 jobs:
   test-build-publish:
