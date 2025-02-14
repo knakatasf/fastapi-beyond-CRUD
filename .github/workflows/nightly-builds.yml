@@ -2,7 +2,8 @@ name: Nightly builds
 
 on:
   schedule:
-    - cron: "30 23 * * *"
+    - cron: "52 23 * * *"
+  workflow_dispatch:
 
 jobs:
   test-build-publish:
