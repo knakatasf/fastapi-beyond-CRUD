@@ -1,8 +1,11 @@
 name: Nightly builds
 
 on:
-  schedule:
-    - cron: "52 23 * * *"
+  push:
+    branches:
+      - main
+#  schedule:
+#    - cron: "52 23 * * *"
   workflow_dispatch:
 
 jobs:
@@ -30,3 +33,12 @@ jobs:
 
       - name: Run tests
         run: pytest src/tests
+
+      - name: Log in to GitHub container registry
+        run: echo "${{ secrets.TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t ghcr.io/${{ github.repository_owner }}/koichi-fastapi:latest .
+
+      - name: Push Docker image
+        run: docker push ghcr.io/${{ github.repository_owner }}/koichi-fastapi:latest
