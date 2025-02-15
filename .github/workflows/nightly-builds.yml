@@ -25,8 +25,8 @@ jobs:
       - name: Docker compose up
         run: docker-compose up -d
 
-      - name: Install libraries
-        run: pip install -r requirements.txt
+#      - name: Install libraries
+#        run: pip install -r requirements.txt
 
       - name: Manually install pytest
         run: pip install pytest
