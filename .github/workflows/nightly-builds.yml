@@ -19,26 +19,37 @@ jobs:
       - name: Copy .env.example to .env
         run: cp .env.example .env
 
-      - name: Set up Docker compose
+      - name: Set up Docker Compose
         run: sudo apt-get install docker-compose
 
-      - name: Docker compose up
-        run: docker-compose up -d
+      - name: Build and run containers
+        run: docker-compose up -d --build
+
+      - name: Run tests inside the container
+        run: docker exec fastapi_container pytest src/tests
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/koichi-fastapi:latest .
+          docker push ghcr.io/${{ github.repository_owner }}/koichi-fastapi:latest
 
 #      - name: Install libraries
 #        run: pip install -r requirements.txt
-
-      - name: Manually install pytest
-        run: pip install pytest
-
-      - name: Run tests
-        run: pytest src/tests
-
-      - name: Log in to GitHub container registry
-        run: echo "${{ secrets.TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-      - name: Build Docker image
-        run: docker build -t ghcr.io/${{ github.repository_owner }}/koichi-fastapi:latest .
-
-      - name: Push Docker image
-        run: docker push ghcr.io/${{ github.repository_owner }}/koichi-fastapi:latest
+#
+#      - name: Manually install pytest
+#        run: pip install pytest
+#
+#      - name: Run tests
+#        run: pytest src/tests
+#
+#      - name: Log in to GitHub container registry
+#        run: echo "${{ secrets.TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+#
+#      - name: Build Docker image
+#        run: docker build -t ghcr.io/${{ github.repository_owner }}/koichi-fastapi:latest .
+#
+#      - name: Push Docker image
+#        run: docker push ghcr.io/${{ github.repository_owner }}/koichi-fastapi:latest
