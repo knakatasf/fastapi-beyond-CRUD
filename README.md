@@ -75,6 +75,16 @@ Run the tests using this command
 ```bash
 pytest
 ```
+## SemVer - Conventional Commits
+Branches other than main include SemVer GitHub Actions to check commit comments comply with the Conventional Commits format when issuing a pull request to the main branch. See
+.github/workflows/commit-check.yml
+Refer to https://www.conventionalcommits.org for the Conventional Commits format.
+
+## Nightly Builds
+The main branch includes Nightly Builds feature (GitHub Actions) to AUTOMATICALLY
+ 1. run the tests (src/tests)
+ 2. upload a Docker image to GitHub Packages as latest if the test passes
+at 12:00am (Pacific Standard Time) every day.
 
 ## Contributing
 I welcome contributions to improve the documentation! You can contribute [here](https://github.com/jod35/fastapi-beyond-crud-docs).
