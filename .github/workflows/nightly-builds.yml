@@ -25,8 +25,8 @@ jobs:
       - name: Build and run containers
         run: docker-compose up -d --build
 
-#      - name: Manually install pytest
-#        run: docker exec fastapi_container pip install pytest
+      - name: Manually install pytest
+        run: docker exec fastapi_container pip install pytest
 
       - name: Run tests inside the container
         run: docker exec fastapi_container pytest src/tests
