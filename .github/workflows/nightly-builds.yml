@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: "53 22 * * *"
+    - cron: "31 20 * * *"
   workflow_dispatch:
 
 jobs:
@@ -25,11 +25,25 @@ jobs:
       - name: Build and run containers
         run: docker-compose up -d --build
 
-      - name: Manually install pytest
-        run: docker exec fastapi_container pip install pytest
+#      - name: Manually install pytest
+#        run: docker exec fastapi_container pip install pytest
 
       - name: Run tests inside the container
         run: docker exec fastapi_container pytest src/tests
+
+      - name: Notify failure to the user
+        uses: dawidd6/action-send-mail@v4
+        if: failure()
+        with:
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port: ${{ secrets.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME}}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: Nightly Builds Failed
+          to: ${{ secrets.EMAIL_DESTINATION }}
+          from: GitHub Workflow
+          body: Unfortunately, Nigthly Builds failed. ${{ github.event.repository.url }}.
+
 
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
